@@ -58,6 +58,21 @@ Automated Snapshots → Daily, 7-day retention
 - **Separation of Concerns** — Dedicated managed database, decoupled from compute
 - **Performance** — Static assets offloaded to Object Storage to reduce instance pressure
 - **Security** — Static IP + free SSL/TLS certificate (included with Lightsail Load Balancer)
+- **Scale-Out IP Strategy** — 500 Static IPs requested in Month 1 to support multi-tenant isolation or proxy use cases
+
+### Static IP Quota Increase — Month 1 Action Plan
+
+> **Default Lightsail quota:** 5 Static IPs per account per region  
+> **Target:** 500 Static IPs
+
+| Step | Action | Owner | Timeline |
+|------|--------|-------|----------|
+| 1 | Submit quota increase via [AWS Service Quotas console](https://console.aws.amazon.com/servicequotas/) → Lightsail → Static IP addresses | Cloud Admin | Day 1 |
+| 2 | If Service Quotas not available for Lightsail, open AWS Support case (Limit Increase) with justification | Cloud Admin | Day 1–2 |
+| 3 | AWS reviews and approves (typically 1–5 business days) | AWS Support | Day 2–7 |
+| 4 | Provision IPs in batches; assign to instances as they come online | Cloud Admin | Week 2–4 |
+
+> ⚠️ **Note:** For 500+ IPs at scale, consider supplementing with **Amazon EC2 Elastic IPs** (also quota-adjustable) via VPC Peering from Lightsail. EC2 EIPs offer finer-grained routing control and are better suited for large IP pools. Unattached Static IPs in Lightsail are billed at **$0.005/hr** (~$3.60/mo each).
 
 ---
 
@@ -65,7 +80,7 @@ Automated Snapshots → Daily, 7-day retention
 
 | Month | Phase | Key Activities | Est. Monthly Cost |
 |-------|-------|---------------|-------------------|
-| **Month 1** | Migration Prep | Provision environment, single-instance testing, data migration validation | ~$36 |
+| **Month 1** | Migration Prep + IP Provisioning | Provision environment, single-instance testing, data migration validation; **submit Service Quota increase request for 500 Static IPs** (via AWS Support or Service Quotas console); begin staged IP assignment to instances | ~$36 + $0.005/hr per unattached IP |
 | **Month 2** | Go-Live | DNS cutover, Load Balancer onboarding, dual-instance scale-out, load testing | ~$72 |
 | **Month 3** | Steady State | Configure alarms & alerts, enable auto-snapshots, establish performance baseline | ~$90 |
 | **Month 4** | Optimization | Migrate static assets to Object Storage, configure CloudFront CDN | ~$95 |
